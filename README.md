@@ -223,7 +223,6 @@ python -m pytest -q tests
 | Diagrama de arquitectura | `Act. 9. Diagrama Arquitectura DEMANDA-IA JGOL.pdf` (copia en `docs/img/`) |
 | Código | Este repositorio |
 
-La correspondencia con cada criterio de la rúbrica está en `docs/GUIA_RUBRICA_ACT9.md`.
 
 ---
 
@@ -281,7 +280,6 @@ Act-9-Escalacion-DEMANDA-IA/
 ├── deployment/k8s/
 ├── runbooks/
 ├── docs/
-│   ├── GUIA_RUBRICA_ACT9.md
 │   ├── MODEL_CARD.md
 │   ├── Act. 9. Anexo técnico DEMANDA-IA JGOL.xlsx
 │   ├── Act. 9. Documento técnico escalación de la solución de DEMANDA-IA.docx
