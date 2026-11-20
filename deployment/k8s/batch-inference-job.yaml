@@ -1,0 +1,50 @@
+# Inferencia batch nocturna (escalamiento horizontal).
+# Un Job indexado reparte las 140 sucursales en 24 particiones; cada pod procesa ~6 sucursales
+# con el modelo ONNX INT8. Corre en nodos spot y reintenta solo la partición que se interrumpe.
+# Para 180 sucursales basta con subir completions/parallelism a 31 (ver src/capacity_planner.py).
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: demanda-ia-batch
+  namespace: demanda-ia
+  labels:
+    app: demanda-ia
+    component: batch-inference      # etiquetas FinOps obligatorias
+    environment: prod
+    cost-center: abasto
+    owner: mlops
+spec:
+  schedule: "0 23 * * *"            # 23:00 hora de Guadalajara (ajustar TZ del clúster)
+  timeZone: "America/Mexico_City"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      completionMode: Indexed
+      completions: 24
+      parallelism: 24
+      backoffLimitPerIndex: 3        # reintento por partición si se pierde el nodo spot
+      activeDeadlineSeconds: 18000   # 5 h: deja 1 h de holgura antes de las 05:00
+      template:
+        metadata:
+          labels:
+            app: demanda-ia
+            component: batch-inference
+        spec:
+          restartPolicy: Never
+          nodeSelector:
+            node-pool: cpu-spot
+          tolerations:
+            - key: "spot"
+              operator: "Equal"
+              value: "true"
+              effect: "NoSchedule"
+          containers:
+            - name: worker
+              image: registry.example.com/demanda-ia/batch-worker:2.0.0   # imagen ilustrativa
+              args: ["--partition", "$(JOB_COMPLETION_INDEX)", "--partitions", "24", "--model", "onnx-int8"]
+              env:
+                - name: MODEL_REGISTRY_STAGE
+                  value: "Production"        # solo versiones aprobadas por el gate
+              resources:
+                requests: {cpu: "7", memory: "12Gi"}
+                limits:   {cpu: "8", memory: "14Gi"}

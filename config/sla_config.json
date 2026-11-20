@@ -1,0 +1,20 @@
+{
+  "note": "SLA del servicio. direction=max significa que el valor observado no debe superar el objetivo; direction=min, que no debe quedar por debajo.",
+  "sla": {
+    "batch_p50_min":          {"direction": "max", "target": 300},
+    "batch_p95_min":          {"direction": "max", "target": 330},
+    "on_time_nights_pct":     {"direction": "min", "target": 99.0},
+    "api_p50_ms":             {"direction": "max", "target": 150},
+    "api_p95_ms":             {"direction": "max", "target": 300},
+    "api_p99_ms":             {"direction": "max", "target": 800},
+    "api_throughput_rps":     {"direction": "min", "target": 100},
+    "api_availability_pct":   {"direction": "min", "target": 99.5},
+    "api_error_rate_pct":     {"direction": "max", "target": 0.5},
+    "cache_hit_pct":          {"direction": "min", "target": 85},
+    "rto_min":                {"direction": "max", "target": 30}
+  },
+  "observed_platform": {
+    "v1": {"api_throughput_rps": 35,  "api_availability_pct": 99.10, "rto_min": 180, "gpu_util_pct": 9,  "cpu_util_pct": 14, "mem_util_pct": 22, "energy_kwh_month": 365},
+    "v2": {"api_throughput_rps": 320, "api_availability_pct": 99.92, "rto_min": 10,  "gpu_util_pct": 74, "cpu_util_pct": 61, "mem_util_pct": 68, "energy_kwh_month": 128}
+  }
+}

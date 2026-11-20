@@ -1,0 +1,10 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+mlflow.db
+mlruns/
+mlartifacts/
+outputs/*
+!outputs/README.md
+data/*.csv

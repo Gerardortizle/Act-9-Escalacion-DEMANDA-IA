@@ -1,0 +1,63 @@
+# API de consulta de pronósticos (microservicio, escalamiento horizontal con HPA).
+# Base de 2 pods repartidos en dos zonas (disponibilidad 99.5 %), hasta 6 en el pico de 8 a 10 h.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demanda-ia-api
+  namespace: demanda-ia
+  labels: {app: demanda-ia, component: api, environment: prod, cost-center: abasto, owner: mlops}
+spec:
+  replicas: 2
+  selector:
+    matchLabels: {app: demanda-ia, component: api}
+  template:
+    metadata:
+      labels: {app: demanda-ia, component: api}
+    spec:
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: topology.kubernetes.io/zone
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels: {app: demanda-ia, component: api}
+      containers:
+        - name: api
+          image: registry.example.com/demanda-ia/api:2.0.0   # imagen ilustrativa
+          ports: [{containerPort: 8080}]
+          env:
+            - {name: REDIS_URL, value: "redis://demanda-ia-cache:6379"}
+            - {name: CACHE_TTL_SECONDS, value: "86400"}       # el pronóstico cambia una vez por noche
+          readinessProbe:
+            httpGet: {path: /health, port: 8080}
+            periodSeconds: 5
+          resources:
+            requests: {cpu: "1", memory: "1Gi"}
+            limits:   {cpu: "2", memory: "2Gi"}
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: demanda-ia-api
+  namespace: demanda-ia
+spec:
+  scaleTargetRef: {apiVersion: apps/v1, kind: Deployment, name: demanda-ia-api}
+  minReplicas: 2
+  maxReplicas: 6
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target: {type: Utilization, averageUtilization: 60}
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: demanda-ia-api
+  namespace: demanda-ia
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels: {app: demanda-ia, component: api}

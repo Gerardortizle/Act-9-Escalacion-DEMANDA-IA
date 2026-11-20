@@ -1,0 +1,56 @@
+{
+  "project_name": "DEMANDA-IA",
+  "company": "Farmacias Occidente Salud (caso simulado)",
+  "note": "Valores de referencia del escenario simulado de la Actividad 9. Son los mismos supuestos de la hoja Supuestos del anexo técnico.",
+
+  "operation": {
+    "branches": 140,
+    "skus": 8000,
+    "horizon_days": 14,
+    "nights_per_month": 30,
+    "hours_per_month": 730,
+    "fx_mxn_per_usd": 18.20
+  },
+
+  "rates_usd": {
+    "cpu_node_spot_hour": 0.12,
+    "cpu_node_ondemand_hour": 0.38,
+    "gpu_node_spot_hour": 0.45,
+    "gpu_node_ondemand_hour": 1.21,
+    "vm_gpu_monolith_hour": 2.45,
+    "vm_gpu_scaleup_2x_hour": 4.90,
+    "api_node_hour": 0.19,
+    "postgres_v2_hour": 0.70,
+    "postgres_v1_hour": 1.60,
+    "redis_node_hour": 0.068,
+    "k8s_control_plane_hour": 0.10
+  },
+
+  "levers": {
+    "cpu_ondemand_fallback_share": 0.10,
+    "gpu_ondemand_fallback_share": 0.20,
+    "commitment_discount": 0.35,
+    "batch_workers": 24,
+    "batch_hours_per_night": 1.6,
+    "gpu_training_hours_month": 26,
+    "etl_nodes": 8,
+    "etl_hours_per_night": 1.0
+  },
+
+  "batch_window": {
+    "v1_p50_minutes": 275,
+    "v2_p50_minutes": 85,
+    "target_p50_minutes": 300
+  },
+
+  "finops_targets": {
+    "min_savings_vs_v1": 0.50,
+    "max_cost_per_million_forecasts_usd": 3.25,
+    "pilot_max_cost_per_million_forecasts_usd": 3.50
+  },
+
+  "mlflow": {
+    "enabled": true,
+    "experiment_name": "Act9_Escalacion_DEMANDA-IA"
+  }
+}

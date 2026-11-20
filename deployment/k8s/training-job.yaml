@@ -1,0 +1,37 @@
+# Reentrenamiento mensual (escalamiento vertical acotado).
+# El nodo GPU solo existe mientras corre este Job (~26 h al mes en total).
+# El entrenamiento guarda checkpoints para continuar si el nodo spot se interrumpe.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: demanda-ia-retrain
+  namespace: demanda-ia
+  labels: {app: demanda-ia, component: training, environment: prod, cost-center: abasto, owner: ciencia-de-datos}
+spec:
+  backoffLimit: 4
+  template:
+    metadata:
+      labels: {app: demanda-ia, component: training}
+    spec:
+      restartPolicy: OnFailure
+      nodeSelector:
+        node-pool: gpu-spot
+      tolerations:
+        - {key: "nvidia.com/gpu", operator: "Exists", effect: "NoSchedule"}
+        - {key: "spot", operator: "Equal", value: "true", effect: "NoSchedule"}
+      containers:
+        - name: trainer
+          image: registry.example.com/demanda-ia/trainer:2.0.0   # imagen ilustrativa
+          args:
+            - "--checkpoint-dir=/checkpoints"
+            - "--loss-weights=clinical_criticality"     # mitigación R04: pesos por criticidad clínica
+            - "--censored-demand=reconstruct"           # mitigación R01: demanda censurada
+            - "--fairness-backtest=true"                # el gate revisa estas métricas antes de promover
+            - "--export=onnx-int8"
+          resources:
+            limits: {nvidia.com/gpu: 1, cpu: "8", memory: "32Gi"}
+          volumeMounts:
+            - {name: checkpoints, mountPath: /checkpoints}
+      volumes:
+        - name: checkpoints
+          persistentVolumeClaim: {claimName: demanda-ia-checkpoints}

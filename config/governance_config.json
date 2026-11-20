@@ -1,0 +1,36 @@
+{
+  "note": "Umbrales de fairness y reglas de los gates de escalamiento (governance-as-code). Grupo C = marginación alta o muy alta; grupo A = referencia.",
+  "groups": {
+    "A": {"label": "Marginación muy baja/baja (urbano)", "branches": 64, "volume_share": 0.58},
+    "B": {"label": "Marginación media (semiurbano)",       "branches": 44, "volume_share": 0.29},
+    "C": {"label": "Marginación alta/muy alta (rural)",    "branches": 32, "volume_share": 0.13}
+  },
+  "reference_group": "A",
+  "protected_group": "C",
+  "fairness_thresholds": {
+    "wape_gap_pp":            {"direction": "max", "threshold": 5.0,  "t22_metric": "Equidad del error",                  "priority": "alta"},
+    "underforecast_abs_mfe":  {"direction": "max", "threshold": 0.03, "t22_metric": "Desviación sistemática",             "priority": "alta"},
+    "tpr_ratio":              {"direction": "min", "threshold": 0.80, "t22_metric": "Igualdad de oportunidades",          "priority": "prioritaria"},
+    "precision_ratio":        {"direction": "min", "threshold": 0.80, "t22_metric": "Predictive parity",                  "priority": "media"},
+    "fpr_ratio":              {"direction": "max", "threshold": 1.25, "t22_metric": "Equalized odds (falsos positivos)",  "priority": "baja"},
+    "essential_stockout_ratio": {"direction": "max", "threshold": 1.50, "t22_metric": "Resultado de acceso",             "priority": "prioritaria"},
+    "fill_rate_ratio":        {"direction": "min", "threshold": 0.98, "t22_metric": "Paridad demográfica (aplicada al resultado)", "priority": "alta"}
+  },
+  "accepted_residual_risks": ["fpr_ratio"],
+  "gates": {
+    "pilot": {
+      "description": "Fase 1: piloto sombra, 20 sucursales",
+      "max_cost_per_million_key": "pilot_max_cost_per_million_forecasts_usd",
+      "require_sla": true,
+      "require_fairness_priorities": ["prioritaria", "alta"],
+      "require_min_savings": false
+    },
+    "full_rollout": {
+      "description": "Fase 3: despliegue en 140 sucursales",
+      "max_cost_per_million_key": "max_cost_per_million_forecasts_usd",
+      "require_sla": true,
+      "require_fairness_priorities": ["prioritaria", "alta"],
+      "require_min_savings": true
+    }
+  }
+}
