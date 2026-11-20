@@ -283,6 +283,8 @@ Act-9-Escalacion-DEMANDA-IA/
 ├── docs/
 │   ├── GUIA_RUBRICA_ACT9.md
 │   ├── MODEL_CARD.md
+│   ├── Act. 9. Anexo técnico DEMANDA-IA JGOL.xlsx
+│   ├── Act. 9. Documento técnico escalación de la solución de DEMANDA-IA.docx
 │   └── img/diagrama_arquitectura.png
 ├── tests/test_consistency.py
 └── outputs/README.md
